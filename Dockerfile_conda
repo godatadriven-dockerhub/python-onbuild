@@ -1,14 +1,15 @@
 ARG MINICONDA_VERSION=3
 FROM godatadriven/miniconda:${MINICONDA_VERSION}
 
-LABEL org.label-schema.name="Python $MINICONDA_VERSION OnBuild PIP" \
+LABEL org.label-schema.name="Python $MINICONDA_VERSION OnBuild CONDA" \
       org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.version=$MINICONDA_VERSION
 
-ONBUILD COPY requirements.txt requirements.txt
+ONBUILD COPY environment.yml environment.yml
 ONBUILD RUN apt-get update \
             && apt-get install -y gcc\
-            && pip install --no-cache-dir -r requirements.txt \
+            && conda env update --file environment.yml \
+            && conda clean --yes --tarballs --packages \
             && apt-get remove -y --purge gcc \
             && apt-get autoremove -y \
             && apt-get clean

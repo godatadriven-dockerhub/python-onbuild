@@ -1,0 +1,3 @@
+FROM godatadriven/python-onbuild:conda
+
+COPY /app /app
