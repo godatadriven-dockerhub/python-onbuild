@@ -3,7 +3,8 @@
 # $IMAGE_NAME var is injected into the build so the tag is correct.
 IMAGE_REPO=${IMAGE_NAME%:*}
 IMAGE_TAG=${IMAGE_NAME#*:}
+DOCKERFILE = "Dockerfile_${IMAGE_TAG}"
 
 # Trigger build
 docker build --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
-             -t $IMAGE_NAME .
+             -t $IMAGE_NAME -f $DOCKERFILE .
