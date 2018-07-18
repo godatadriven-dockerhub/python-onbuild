@@ -9,9 +9,8 @@ ONBUILD COPY environment.yml environment.yml
 ONBUILD RUN apt-get update \
             && apt-get install -y gcc\
             && conda env update --file environment.yml -n root \
-            && conda clean --yes --tarballs --packages \
-            && apt-get remove -y --purge gcc \
-            && apt-get autoremove -y \
+            && conda clean -tipsy \ 
+            && apt-get purge -y --auto-remove gcc \
             && apt-get clean
 
 ENV PYTHONUNBUFFERED true
