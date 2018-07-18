@@ -8,7 +8,7 @@ LABEL org.label-schema.name="Python $MINICONDA_VERSION OnBuild CONDA" \
 ONBUILD COPY environment.yml environment.yml
 ONBUILD RUN apt-get update \
             && apt-get install -y gcc\
-            && conda env update --file environment.yml \
+            && conda env update --file environment.yml -n root \
             && conda clean --yes --tarballs --packages \
             && apt-get remove -y --purge gcc \
             && apt-get autoremove -y \
