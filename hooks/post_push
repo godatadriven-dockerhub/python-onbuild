@@ -8,4 +8,13 @@ IMAGE_TAG=${IMAGE_NAME#*:}
 if [ "$IMAGE_TAG" = "pip-python3.6" ]; then
     docker tag $IMAGE_NAME ${IMAGE_REPO}:latest
     docker push ${IMAGE_REPO}:latest
+    
+    docker tag $IMAGE_NAME ${IMAGE_REPO}:pip
+    docker push ${IMAGE_REPO}:pip
+fi
+
+# Retag to conda
+if [ "$IMAGE_TAG" = "conda-python3.6" ]; then
+    docker tag $IMAGE_NAME ${IMAGE_REPO}:conda
+    docker push ${IMAGE_REPO}:conda
 fi
