@@ -5,10 +5,14 @@ LABEL org.label-schema.name="Python $MINICONDA_VERSION OnBuild PIP" \
       org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.version=$MINICONDA_VERSION
 
-ONBUILD COPY requirements.txt requirements.txt
-ONBUILD RUN apt-get update \
+ONBUILD COPY requirements.txt packages.txt* /dependencies/
+ONBUILD RUN set -x\
+            && apt-get update \
             && apt-get install -y gcc\
-            && pip install --no-cache-dir -r requirements.txt \
+            && if [ -f /dependencies/packages.txt ]; then\
+                apt-get install -y $(awk '/^\s*[^#]/' /dependencies/packages.txt | sed 's/\r//g');\
+               fi\
+            && pip install --no-cache-dir -r /dependencies/requirements.txt \
             && apt-get purge -y --auto-remove gcc \
             && apt-get clean
 
