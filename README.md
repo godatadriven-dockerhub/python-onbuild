@@ -23,11 +23,16 @@ FROM godatadriven/python-onbuild:conda
 COPY /app /app
 ```
 
-## Debian packages
+### Debian packages
 
-On top of Python dependencies, you might have a requirement to install additional Debian packges in your Docker container.
+On top of Python dependencies, you might have a requirement to install additional Debian packages in your Docker container.
 You can do this by placing a `packages.txt` file in the root of your project. 
-If this file is present, we will use apt to install them. 
+If this file is present, we will use apt to install them.
 
-### Examples
-Go to the example-usage folder to find an example of both containers
+## Arbitrary bash commands
+
+Finally, by placing a `build.sh` file in the root of your project, you can run artibraty bash commands during the build process of your
+Docker container.  
+
+# Examples
+Go to the example-usage folder to find an example of both containers, and the optional features.
