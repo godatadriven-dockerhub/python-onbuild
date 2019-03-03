@@ -12,4 +12,5 @@ DOCKERFILE="Dockerfile_${DEP_TYPE}"
 # Trigger build
 docker build --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
              --build-arg MINICONDA_VERSION=$PYTHON_VERSION \
-             -t $IMAGE_NAME -f $DOCKERFILE .
+             -f $DOCKERFILE
+             -t $DOCKER_REPO:${DOCKER_TAG//,/ -t $DOCKER_REPO:} .
