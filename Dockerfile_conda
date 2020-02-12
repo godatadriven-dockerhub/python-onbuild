@@ -8,7 +8,7 @@ LABEL org.label-schema.name="Python $MINICONDA_VERSION OnBuild CONDA" \
 ONBUILD ADD environment.yml packages.txt* build.sh* /dependencies/
 ONBUILD RUN set -x\
             && apt-get update \
-            && apt-get install -y gcc\
+            && apt-get install -y gcc g++\
             && if [ -f /dependencies/packages.txt ]; then\
                 apt-get install -y $(awk '/^\s*[^#]/' /dependencies/packages.txt | sed 's/\r//g');\
                fi\
@@ -17,7 +17,7 @@ ONBUILD RUN set -x\
                 bash /dependencies/build.sh;\
                fi\
             && conda clean -tipsy \
-            && apt-get purge -y --auto-remove gcc \
+            && apt-get purge -y --auto-remove gcc g++\
             && apt-get clean
 
 ENV PYTHONUNBUFFERED true
