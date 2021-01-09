@@ -1,0 +1,9 @@
+version: '3.3'
+services:
+  sut:
+    build:
+      context: tests/app-pip
+      dockerfile: /tests/Dockerfile
+      args:
+        IMAGE_NAME: ${IMAGE_NAME}
+    command: -v --lsbsysinit /tests
