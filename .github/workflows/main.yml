@@ -103,10 +103,10 @@ jobs:
             docker push $DOCKER_REPO
 
       - name: Report Status
-        if: always() # && github.ref == 'refs/heads/master'
+        if: always() && github.ref == 'refs/heads/master'
         uses: ravsamhq/notify-slack-action@master
         with:
           status: ${{ job.status }}
-          notify_when: 'success'
+          notify_when: 'failure'
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_GDD_GENERAL_WEBHOOK }}
