@@ -1,2 +1,2 @@
-import pandas as pd
-print("Installed pandas version {}".format(pd.__version__))
+import urllib3
+print("Installed urllib3 version {}".format(urllib3.__version__))
