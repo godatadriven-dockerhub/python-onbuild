@@ -3,7 +3,7 @@ services:
   sut:
     build:
       context: tests/app-pip
-      dockerfile: $GITHUB_WORKSPACE/python-onbuild/tests/Dockerfile
+      dockerfile: $GITHUB_WORKSPACE/tests/Dockerfile
       args:
         IMAGE_NAME: ${IMAGE_NAME}
     command: -v --lsbsysinit /tests
