@@ -20,9 +20,6 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # Array where every entry is a single miniconda docker image 
-        # represented by a string with comma seperated tags:
-        # ["MINICONDA_RELEASE-PYTHON_VERSION,TAG_2, TAG_3, ....", ]
         DOCKER_TAG: [
           "conda-python2.7",
           "conda-python3.6",
@@ -71,8 +68,9 @@ jobs:
          file: ./${{ steps.prep.outputs.dockerfile }}
          push: false
          tags: ${{ steps.prep.outputs.tags }}
+         # Note the miniconda_version is the python version
          build-args: |
-           PYTHON_VERSION=${{ steps.prep.outputs.python_version }}
+           MINICONDA_VERSION=${{ steps.prep.outputs.python_version }}
          labels: |
            org.opencontainers.image.source=${{ github.event.repository.clone_url }}
            org.opencontainers.image.created=${{ steps.prep.outputs.created }}
