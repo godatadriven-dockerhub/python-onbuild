@@ -1,6 +1,13 @@
 version: '3.3'
 services:
-  sut:
+  sut-conda:
+    build:
+      context: tests/app-conda
+      dockerfile: $GITHUB_WORKSPACE/tests/Dockerfile
+      args:
+        IMAGE_NAME: ${IMAGE_NAME}
+    command: -v --lsbsysinit /tests
+  sut-pip:
     build:
       context: tests/app-pip
       dockerfile: $GITHUB_WORKSPACE/tests/Dockerfile

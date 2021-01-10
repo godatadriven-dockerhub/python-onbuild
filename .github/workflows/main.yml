@@ -83,8 +83,13 @@ jobs:
             IMAGE_NAME: ${{ steps.prep.outputs.image_name }}
         run: |
             if [[ -f "docker-compose.test.yml" ]]; then
-                docker-compose --file docker-compose.test.yml build
-                docker-compose --file docker-compose.test.yml run sut
+                if [[ ${{ steps.prep.outputs.dockerfile }} == "Dockerfile_conda" ]]; then
+                  docker-compose --file docker-compose.test.yml build sut-conda
+                  docker-compose --file docker-compose.test.yml run sut-conda
+                else
+                  docker-compose --file docker-compose.test.yml build sut-pip
+                  docker-compose --file docker-compose.test.yml run sut-pip
+                fi
             fi
 
       - name: Login to DockerHub
