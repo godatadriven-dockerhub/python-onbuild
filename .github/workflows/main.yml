@@ -1,30 +1,108 @@
-# This is a basic workflow to help you get started with Actions
-
 name: CI
 
-# Controls when the action will run. 
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
   push:
-    branches: [ master ]
+    branches:
+      - master
   pull_request:
-    branches: [ master ]
+    branches:
+      - master
+  schedule:
+    # Triggers every week on tuesday night
+    - cron:  '0 0 * * 2'
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+env:
+  DOCKER_REPO: godatadriven/python-onbuild
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
+    name: build
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
+    strategy:
+      matrix:
+        DOCKER_TAG: [
+          "conda-python3.6",
+          "conda-python3.7",
+          "conda-python3.8",
+          "conda-python3.9,conda",
+          "pip-python3.6",
+          "pip-python3.7",
+          "pip-python3.8",
+          "pip-python3.9,pip,latest"
+        ]
+    timeout-minutes: 30
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
+      - name: Prepare
+        id: prep
+        run: |
+            DOCKER_TAG="${{ matrix.DOCKER_TAG }}"
+            IMAGE_TAG=${DOCKER_TAG%%,*}
+
+            DEP_TYPE=${IMAGE_TAG%-*}
+            DOCKERFILE="Dockerfile_${DEP_TYPE}"
+            echo ::set-output name=dockerfile::${DOCKERFILE}
+
+            PYTHON_TAG=${IMAGE_TAG#*-}
+            PYTHON_VERSION=${PYTHON_TAG:6}
+            echo ::set-output name=python_version::${PYTHON_VERSION}
+
+            DOCKER_IMAGE_NAME="$DOCKER_REPO:$IMAGE_TAG"
+            echo ::set-output name=image_name::${DOCKER_IMAGE_NAME}
+
+            TAGS="$DOCKER_REPO:${DOCKER_TAG//,/,$DOCKER_REPO:}"
+            echo ::set-output name=tags::${TAGS}
+
+            echo ::set-output name=created::$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+
+      - name: Build image
+        uses: docker/build-push-action@v2
+        with:
+         context: .
+         file: ./${{ steps.prep.outputs.dockerfile }}
+         push: false
+         tags: ${{ steps.prep.outputs.tags }}
+         # Note the miniconda_version is the python version
+         build-args: |
+           MINICONDA_VERSION=${{ steps.prep.outputs.python_version }}
+         labels: |
+           org.opencontainers.image.source=${{ github.event.repository.clone_url }}
+           org.opencontainers.image.created=${{ steps.prep.outputs.created }}
+           org.opencontainers.image.revision=${{ github.sha }}
+
+      - name: Test image
+        env:
+            IMAGE_NAME: ${{ steps.prep.outputs.image_name }}
+        run: |
+            if [[ -f "docker-compose.test.yml" ]]; then
+                if [[ ${{ steps.prep.outputs.dockerfile }} == "Dockerfile_conda" ]]; then
+                  docker-compose --file docker-compose.test.yml build sut-conda
+                  docker-compose --file docker-compose.test.yml run sut-conda
+                else
+                  docker-compose --file docker-compose.test.yml build sut-pip
+                  docker-compose --file docker-compose.test.yml run sut-pip
+                fi
+            fi
+
+      - name: Login to DockerHub
+        if: github.ref == 'refs/heads/master'
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB }}
+
+      - name: Push image
+        if: github.ref == 'refs/heads/master'
+        run: |
+            docker push $DOCKER_REPO
+
+      - name: Report Status
+        if: always() && github.ref == 'refs/heads/master'
+        uses: ravsamhq/notify-slack-action@master
+        with:
+          status: ${{ job.status }}
+          notify_when: 'failure'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_GDD_GENERAL_WEBHOOK }}
