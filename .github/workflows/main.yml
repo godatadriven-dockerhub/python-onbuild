@@ -21,11 +21,9 @@ jobs:
     strategy:
       matrix:
         DOCKER_TAG: [
-          "conda-python3.7",
           "conda-python3.8",
           "conda-python3.9",
           "conda-python3.10,conda",
-          "pip-python3.7",
           "pip-python3.8",
           "pip-python3.9",
           "pip-python3.10,pip,latest"
