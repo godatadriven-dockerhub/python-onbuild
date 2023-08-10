@@ -16,7 +16,7 @@ ONBUILD RUN set -x\
             && if [ -f /dependencies/build.sh ]; then\
                 bash /dependencies/build.sh;\
                fi\
-            && conda clean -tipsy \
+            && conda clean -tip \
             && apt-get purge -y --auto-remove gcc g++\
             && apt-get clean
 
